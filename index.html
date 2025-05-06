@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RECUÉRDALO</title>
+    <!-- Fuente llamativa -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Fondo con imagen */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #28a745 url('A_digital_vector_graphic_features_a_background_gra.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Título en esquina superior izquierda */
+        h1 {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            color: #ffffff;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+            text-transform: uppercase;
+            margin: 0;
+        }
+        /* Contenedor de la historia */
+        .viewer {
+            position: relative;
+            width: 90vw;
+            height: 80vh;
+            max-width: 600px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        /* Barra de progreso */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+        }
+        .progress {
+            width: 0;
+            height: 100%;
+            background: #ffffff;
+        }
+        /* Imagen: se muestra completa sin recortar */
+        .viewer img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+        /* Flechas de navegación */
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: rgba(255,255,255,0.8);
+            cursor: pointer;
+            user-select: none;
+            padding: 10px;
+        }
+        .arrow:hover { color: #fff; }
+        .arrow.left { left: 10px; }
+        .arrow.right { right: 10px; }
+        /* Botón de pausa/reanudar */
+        #pauseBtn {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.8);
+            border: none;
+            padding: 8px 16px;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #pauseBtn:hover { background: #fff; }
+    </style>
+</head>
+<body>
+    <h1>RECUÉRDALO</h1>
+    <div class="viewer">
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="arrow left" id="prev">&#10094;</div>
+        <img id="story" src="WhatsApp Image 2025-04-16 at 1.29.20 PM.jpeg" alt="Story Image">
+        <div class="arrow right" id="next">&#10095;</div>
+        <button id="pauseBtn">Pausar</button>
+    </div>
+
+    <script>
+        const images = [
+            'WhatsApp Image 2025-04-16 at 1.29.20 PM.jpeg',
+            'WhatsApp Image 2025-05-01 at 9.52.03 AM.jpeg',
+            'WhatsApp Image 2025-05-01 at 4.03.40 PM.jpeg',
+            'WhatsApp Image 2025-04-17 at 2.10.24 PM.jpeg'
+        ];
+        let current = 0;
+        const duration = 5000;
+        let remainingTime = duration;
+        let timeoutId, startTime;
+        let paused = false;
+
+        const imgElem = document.getElementById('story');
+        const progressElem = document.getElementById('progress');
+        const pauseBtn = document.getElementById('pauseBtn');
+
+        function showStory(index) {
+            current = index;
+            imgElem.src = images[current];
+            resetProgress();
+        }
+
+        function resetProgress() {
+            clearTimeout(timeoutId);
+            progressElem.style.transition = 'none';
+            progressElem.style.width = '0%';
+            remainingTime = duration;
+            void progressElem.offsetWidth;
+            startProgress();
+        }
+
+        function startProgress() {
+            startTime = Date.now();
+            progressElem.style.transition = `width ${remainingTime}ms linear`;
+            progressElem.style.width = '100%';
+            timeoutId = setTimeout(nextStory, remainingTime);
+        }
+
+        function nextStory() {
+            if (!paused) showStory((current + 1) % images.length);
+        }
+
+        function prevStory() {
+            clearTimeout(timeoutId);
+            showStory((current - 1 + images.length) % images.length);
+        }
+
+        pauseBtn.addEventListener('click', function() {
+            if (!paused) {
+                paused = true;
+                clearTimeout(timeoutId);
+                const elapsed = Date.now() - startTime;
+                remainingTime -= elapsed;
+                progressElem.style.transition = 'none';
+                const percent = (elapsed / duration) * 100;
+                progressElem.style.width = `${percent}%`;
+                this.textContent = 'Reanudar';
+            } else {
+                paused = false;
+                this.textContent = 'Pausar';
+                void progressElem.offsetWidth;
+                startProgress();
+            }
+        });
+
+        document.getElementById('next').addEventListener('click', () => {
+            clearTimeout(timeoutId);
+            paused = false;
+            pauseBtn.textContent = 'Pausar';
+            nextStory();
+        });
+        document.getElementById('prev').addEventListener('click', () => {
+            clearTimeout(timeoutId);
+            paused = false;
+            pauseBtn.textContent = 'Pausar';
+            prevStory();
+        });
+
+        window.addEventListener('load', () => showStory(0));
+    </script>
+</body>
+</html>
